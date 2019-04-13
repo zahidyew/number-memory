@@ -4,8 +4,10 @@ const plus = document.getElementById("plus")
 const minus = document.getElementById("minus");
 const button = document.getElementById("generate");
 const resetButton = document.getElementById("reset");
-const showAnsButton = document.getElementById("showAns");
 const output = document.getElementById("output");
+const checkAnsButton = document.getElementById("checkAns");
+const answerElem = document.getElementById("answer");
+var number;
 
 plus.addEventListener("click", addSeconds);
 minus.addEventListener("click", minusSeconds);
@@ -13,7 +15,8 @@ button.addEventListener("click", clickGenerate);
 resetButton.addEventListener("click", reset);
 
 resetButton.disabled = true;
-showAnsButton.style.visibility = 'hidden';
+checkAnsButton.style.visibility = "hidden";
+answerElem.style.visibility = "hidden";
 
 // add 1sec every time + is clicked 
 function addSeconds() {
@@ -50,7 +53,7 @@ function minusSeconds() {
 function clickGenerate() {
    let digit = parseInt(digitElem.value);
 
-   let number = generateNumber(digit);
+   number = generateNumber(digit);
 
    button.disabled = true;
    resetButton.disabled = false;
@@ -59,81 +62,43 @@ function clickGenerate() {
 
    // timerUp is a global variable.
    // (variables without var/let/const is automatically global)
-   timerUp = setInterval(countdown, 1000, number);
+   timerUp = setInterval(countdown, 1000);
 }
 
 function generateNumber(digit) {
    let max = 16;
+   let num = "";
 
    // if textfield is empty, default digit length is 6
    isNaN(digit) ? digit = 6 : digit = digit;
 
-   if (digit > max) {
-      let num = "";
-      /* let n = "";
-      let i = digit - max;
+   let loop = Math.floor(digit/max);
+   let remainder = digit % max;
+   let mDigit = max;
+   //console.log(loop + " " + remainder);
 
-      max = Math.pow(10, max);
+   // create 16 random numbers each loop
+   for (let i = 0; i < loop; i++) {
+      max = Math.pow(10, mDigit);
       let min = max / 10;
       let number = Math.floor(Math.random() * (max - min + 1) + min);
-      n += number;
-
-      max = Math.pow(10, i);
-      min = max / 10;
-      number = Math.floor(Math.random() * (max - min + 1) + min);
-      n += number; */
-
-      if(digit % max === 0) {
-         let loop = digit/max;
-         let mDigit = max;
-
-         for(let i = 0; i < loop; i++) {
-            max = Math.pow(10, mDigit);
-            let min = max / 10;
-            let number = Math.floor(Math.random() * (max - min + 1) + min);
-            num += number;
-            //console.log(num);
-         }
-         return num;
-      }
-      else {
-         let loop = Math.floor(digit/max);
-         let remainder = digit % max;
-         console.log(loop + " " + remainder);
-
-         let mDigit = max;
-
-         for (let i = 0; i < loop; i++) {
-            max = Math.pow(10, mDigit);
-            let min = max / 10;
-            let number = Math.floor(Math.random() * (max - min + 1) + min);
-            num += number;
-            console.log(num);
-            console.log(num.length);
-         }
-         max = Math.pow(10, remainder);
-         let min = max / 10;
-         let number = Math.floor(Math.random() * (max - min + 1) + min);
-         num += number;
-         console.log(num);
-         console.log(num.length);
-
-         return num;
-      }
+      num += number + "\n";
    }
-   else {
-      max = Math.pow(10, digit);
+   
+   // create remaining numbers(<16)
+   if(remainder > 0) {
+      max = Math.pow(10, remainder);
       let min = max / 10;
       let number = Math.floor(Math.random() * (max - min + 1) + min);
-      return number;
+      num += number;
+      //console.log(num);
+      //console.log(num.length);
    }
-
-   //return number;
-   //output.innerText = number;
+   return num;
 }
 
 //
-function countdown(number) {
+function countdown() {
    let timer = parseInt(timerElem.innerText);
 
    minusSeconds();
@@ -142,22 +107,31 @@ function countdown(number) {
       clearInterval(timerUp);
 
       output.innerText = "";
-      showAnsButton.style.visibility = 'visible';
-      showAnsButton.addEventListener("click",
-         () => { 
-            output.innerText = number;
-            /* output.innerText === "" ? output.innerText = number : output.innerText = "";  */
-         });
+      answerElem.style.visibility = 'visible';
+
+      checkAnsButton.style.visibility = 'visible';
+      checkAnsButton.addEventListener("click", checkTheAnswer);
    }
+}
+
+function checkTheAnswer() {
+   let answer = answerElem.value;
+
+   output.innerText = number;
+   checkAnsButton.style.visibility = 'hidden';
+   /* output.innerText === "" ? output.innerText = number : output.innerText = "";  */
+
+   answer == number ? alert("Correct") : alert("Wrong Answer");
 }
 
 function reset() {
    //let timer = parseInt(timerElem.innerText);
-
    button.disabled = false;
    timerElem.innerText = "05";
-   output.innerText = "Generated number here";
-   showAnsButton.style.visibility = 'hidden';
+   output.innerText = "000000";
+   checkAnsButton.style.visibility = "hidden";
+   answerElem.value = "";
+   answerElem.style.visibility = "hidden";
 
    clearInterval(timerUp);
 }
@@ -167,22 +141,10 @@ document.onkeydown = function (key) {
    key = key || window.event;
    switch (key.which || key.keyCode) {
       case 13: //13 is ASCII for Enter
-         if(!button.disabled)
+         if(!button.disabled && digitElem === document.activeElement)
             clickGenerate();
+         else if (output.innerText === "" && answerElem === document.activeElement)
+            checkTheAnswer();
          break;
    }
 }
-
-/* function generate(n) {
-      var add = 1, max = 12 - add;   // 12 is the min safe number Math.random() can generate without it starting to pad the end with zeros.
-
-      if (n > max) {
-         return generate(max) + generate(n - max);
-      }
-
-      max = Math.pow(10, n + add);
-      var min = max / 10; // Math.pow(10, n) basically
-      var number = Math.floor(Math.random() * (max - min + 1)) + min;
-
-      return ("" + number).substring(add);
-   } */
