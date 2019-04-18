@@ -1,0 +1,23 @@
+{
+  "name": "number_generator",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "deploy": "gh-pages -d dist"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zahidyew/number-memory.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/zahidyew/number-memory/numbermemory"
+  },
+  "homepage": "https://zahidyew.github.io/",
+  "dependencies": {
+    "gh-pages": "^2.0.1"
+  }
+}
